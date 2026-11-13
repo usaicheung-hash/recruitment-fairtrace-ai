@@ -3,34 +3,34 @@
   "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
   "method": "naive",
   "spread": 5.0,
-  "sd": 0.4,
-  "separation": 38.7,
+  "sd": 0.0,
+  "separation": 38.0,
   "cost_per_cv": 0.00018,
-  "sec_per_cv": 17.6,
+  "sec_per_cv": 8.3,
   "scores": {
-   "A1": 90.0,
+   "A1": 95.0,
    "A2": 90.0,
    "A3": 95.0,
    "A4": 90.0,
    "A5": 95.0,
-   "A6": 53.3
+   "A6": 55.0
   }
  },
  {
   "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
   "method": "fair",
-  "spread": 0.0,
-  "sd": 0.0,
-  "separation": 56.0,
-  "cost_per_cv": 0.00048,
-  "sec_per_cv": 24.0,
+  "spread": 1.0,
+  "sd": 0.5,
+  "separation": 56.4,
+  "cost_per_cv": 0.00052,
+  "sec_per_cv": 30.4,
   "evidence": 100,
   "scores": {
    "A1": 86.0,
    "A2": 86.0,
    "A3": 86.0,
-   "A4": 86.0,
-   "A5": 86.0,
+   "A4": 87.0,
+   "A5": 87.0,
    "A6": 30.0
   }
  },
@@ -38,32 +38,32 @@
   "model": "Qwen/Qwen2.5-72B-Instruct",
   "method": "naive",
   "spread": 5.0,
-  "sd": 0.0,
-  "separation": 28.0,
+  "sd": 1.2,
+  "separation": 34.7,
   "cost_per_cv": 0.00042,
-  "sec_per_cv": 5.4,
+  "sec_per_cv": 4.9,
   "scores": {
-   "A1": 90.0,
+   "A1": 88.3,
    "A2": 85.0,
    "A3": 90.0,
-   "A4": 85.0,
+   "A4": 86.7,
    "A5": 90.0,
-   "A6": 60.0
+   "A6": 53.3
   }
  },
  {
   "model": "Qwen/Qwen2.5-72B-Instruct",
   "method": "fair",
   "spread": 2.0,
-  "sd": 1.0,
-  "separation": 44.5,
+  "sd": 0.8,
+  "separation": 44.3,
   "cost_per_cv": 0.00088,
-  "sec_per_cv": 37.4,
+  "sec_per_cv": 23.5,
   "evidence": 100,
   "scores": {
    "A1": 72.0,
    "A2": 71.0,
-   "A3": 71.0,
+   "A3": 70.0,
    "A4": 70.0,
    "A5": 70.0,
    "A6": 26.3
@@ -72,16 +72,16 @@
  {
   "model": "meta-llama/Llama-3.3-70B-Instruct",
   "method": "naive",
-  "spread": 5.0,
-  "sd": 0.0,
-  "separation": 74.0,
+  "spread": 6.0,
+  "sd": 0.6,
+  "separation": 73.9,
   "cost_per_cv": 0.0002,
-  "sec_per_cv": 8.2,
+  "sec_per_cv": 18.8,
   "scores": {
    "A1": 95.0,
    "A2": 90.0,
-   "A3": 95.0,
-   "A4": 95.0,
+   "A3": 96.0,
+   "A4": 93.3,
    "A5": 95.0,
    "A6": 20.0
   }
@@ -89,19 +89,19 @@
  {
   "model": "meta-llama/Llama-3.3-70B-Instruct",
   "method": "fair",
-  "spread": 2.3,
-  "sd": 1.8,
-  "separation": 55.0,
-  "cost_per_cv": 0.00047,
-  "sec_per_cv": 34.9,
+  "spread": 3.7,
+  "sd": 2.8,
+  "separation": 42.4,
+  "cost_per_cv": 0.00052,
+  "sec_per_cv": 29.0,
   "evidence": 100,
   "scores": {
-   "A1": 76.0,
-   "A2": 74.7,
-   "A3": 77.0,
-   "A4": 77.0,
-   "A5": 77.0,
-   "A6": 21.3
+   "A1": 77.0,
+   "A2": 76.0,
+   "A3": 76.0,
+   "A4": 73.3,
+   "A5": 73.3,
+   "A6": 32.7
   }
  }
 ]

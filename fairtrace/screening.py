@@ -172,10 +172,25 @@ def verify_quote(quote: str, cv: str) -> bool:
     if q in c:
         return True
     words = c.split()
+    if set(q.split()) - set(words):
+        return False  # a word the CV never uses (e.g. text the model invented) fails at once
     n = len(q.split())
     best = max((difflib.SequenceMatcher(None, q, " ".join(words[i:i + n])).ratio()
                 for i in range(max(1, len(words) - n + 1))), default=0)
     return best >= 0.85
+
+
+def check_quote(quote: str, cv: str) -> tuple[bool, str]:
+    """(verified, evidence). If only the END of a quote is garbled (a known model glitch, e.g.
+    "...annual游戏副本"), keep the longest start that really is in the CV, if it is long enough."""
+    if verify_quote(quote, cv):
+        return True, quote
+    words = quote.split()
+    for n in range(len(words) - 1, 5, -1):
+        part = " ".join(words[:n])
+        if n >= 0.75 * len(words) and verify_quote(part, cv):
+            return True, part + " [trimmed: rest not in CV]"
+    return False, quote
 
 
 def rubric_text(rubric: list[dict]) -> str:
@@ -197,7 +212,7 @@ def evidence_once(cv: str, rubric: list[dict], subject: str, run_id: str, model:
              or listed[i])  # same order as the rubric
         raw = max(0.0, min(5.0, float(c.get("score", 0) or 0)))
         ev = (c.get("evidence") or "").strip()
-        ok = verify_quote(ev, cv) if ev else False
+        ok, ev = check_quote(ev, cv) if ev else (False, ev)
         pts = crit["weight"] * (raw if ok else 0) / 5
         total += pts
         rows.append({"criterion": crit["name"], "weight": crit["weight"], "raw": raw, "evidence": ev,
@@ -209,11 +224,21 @@ def evidence_once(cv: str, rubric: list[dict], subject: str, run_id: str, model:
 
 def evidence_score(cv: str, rubric: list[dict], subject: str, run_id: str, model: str | None = None) -> dict:
     def one(_):
-        for _try in range(3):  # an incomplete or unreadable answer is asked again (and stays in the trace)
+        """Ask again (max 3 tries) when the answer is incomplete or quotes text that is NOT in the CV.
+        Rejected quotes are kept, so HR can see that the check caught the model inventing evidence."""
+        rejected, last = [], None
+        for _try in range(3):
             res = evidence_once(cv, rubric, subject, run_id, model)
-            if res:
-                return res
-        return None
+            if not res:
+                continue
+            bad = [c["evidence"] for c in res["criteria"] if c["evidence"] and not c["verified"]]
+            last = res
+            if not bad:
+                break
+            rejected += bad
+        if last:
+            last["rejected_quotes"] = rejected
+        return last
 
     with ThreadPoolExecutor(max_workers=REPEATS) as ex:
         runs = [x for x in ex.map(one, range(REPEATS)) if x]
@@ -222,7 +247,9 @@ def evidence_score(cv: str, rubric: list[dict], subject: str, run_id: str, model
     scores = [r["score"] for r in runs]
     checked = [c for r in runs for c in r["criteria"] if c["evidence"]]
     return {"score": round(mean(scores), 1), "sd": round(pstdev(scores), 1), "scores": scores,
-            "runs": runs, "evidence_valid": round(100 * sum(c["verified"] for c in checked) / max(1, len(checked)))}
+            "runs": runs, "evidence_valid": round(100 * sum(c["verified"] for c in checked) / max(1, len(checked))),
+            "quotes_rejected": sum(len(r.get("rejected_quotes", [])) for r in runs),
+            "quotes_trimmed": sum("[trimmed" in c["evidence"] for c in checked)}
 
 
 # ------------------------------------------------------------------ candidate explanation

@@ -74,7 +74,7 @@ def replay_audit(state):
     shown = []
     for st in a["steps"]:
         yield ui.timeline_html(shown, running=True), gr.update(), None
-        time.sleep(1.1)
+        time.sleep(0.8)
         shown.append(st)
         yield ui.timeline_html(shown), gr.update(), None
     yield ui.timeline_html(shown), ui.audit_results_html(a), copy.deepcopy(a)
@@ -96,11 +96,11 @@ def live_audit(pw: str):
 
 def decide(a, decision: str):
     if not a:
-        return ui.wrap("<div class='card'>Run or replay the audit first.</div>"), None
+        return ui.wrap("<div class='card'>Run or replay the audit first.</div>"), gr.update(visible=False)
     note = f"{decision} at {time.strftime('%Y-%m-%d %H:%M')}"
     trace.record({"run_id": a["run_id"], "component": "human.approval", "subject": "fix", "observation": note})
     a["trace"] = trace.records(run_id=a["run_id"])
-    return ui.audit_results_html(a, note), _file("fairtrace_audit_report.md", auditor.report_md(a, note))
+    return ui.audit_results_html(a, note), gr.update(value=_file("fairtrace_audit_report.md", auditor.report_md(a, note)), visible=True)
 
 
 # ------------------------------------------------------------------ tab 4
@@ -112,7 +112,7 @@ def show_trace(choice: str):
 
 def download_trace():
     recs = REPLAY["rubric"]["trace"] + REPLAY["screen"]["trace"] + REPLAY["audit"]["trace"]
-    return _file("fairtrace_decision_trace.jsonl", trace.to_jsonl(recs))
+    return gr.update(value=_file("fairtrace_decision_trace.jsonl", trace.to_jsonl(recs)), visible=True)
 
 
 ABOUT = f"""
@@ -154,24 +154,42 @@ FORCE_LIGHT = """() => { const light = () => { document.body.classList.remove('d
   document.querySelectorAll('.dark').forEach(e => e.classList.remove('dark')); };
   light(); new MutationObserver(light).observe(document.body, {attributes: true}); }"""
 
+STEPS = [("① Rubric", "fair job ad", "#0284c7"), ("② Blind", "hide personal data", "#db2777"),
+         ("③ Score", "quote every point", "#4f46e5"), ("④ Audit", "agent tests bias", "#d97706"),
+         ("⑤ Trace", "log every call", "#16a34a")]
+HERO = ui.wrap(
+    "<div style='display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:4px 0 6px'>"
+    "<div><div style='font-size:1.9rem;font-weight:800;letter-spacing:-.02em'>Recruitment FairTrace AI</div>"
+    "<div class='sub' style='font-size:1rem'>Screen CVs fast, fairly and <b>with proof</b>.</div></div>"
+    "<div class='tiny'>All data synthetic · IS5542 GenAI in Business, CityU</div></div>"
+    "<div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 2px'>"
+    + "<span style='color:#94a3b8;font-weight:800'>→</span>".join(
+        f"<div class='kpi' style='flex:0 1 auto;min-width:0;padding:7px 12px;animation-delay:{i * .12:.2f}s'>"
+        f"<b style='color:{c}'>{n}</b> <span class='tiny'>{t}</span></div>" for i, (n, t, c) in enumerate(STEPS))
+    + "</div>")
+
+SHELL_CSS = """
+.gradio-container{max-width:1180px !important}
+button[role=tab]{font-weight:700 !important;font-size:15px !important}
+"""
+
 with gr.Blocks(title="Recruitment FairTrace AI") as demo:
-    gr.Markdown("# 🛩️ Recruitment FairTrace AI\n**Screen CVs fast, fairly and with proof.** "
-                "Rubric → Blind → Trace → Audit. *All data synthetic · IS5542 GenAI in Business, CityU.*")
-    pw = gr.Textbox(label="🔒 Owner password (only needed to run the AI again; saved results are free)",
-                    type="password", max_lines=1)
+    gr.HTML(HERO)
+    with gr.Accordion("🔒 Owner controls (only needed to run the AI live; saved results are free)", open=False):
+        pw = gr.Textbox(label="Owner password", type="password", max_lines=1)
     P = dict(api_visibility="private")
     with gr.Tabs():
         with gr.Tab("① Fair Rubric"):
-            gr.Markdown("### Bias often starts in the job ad. The AI reviews it, then builds a job-related rubric.")
+            gr.Markdown("### Bias often starts in the job ad")
             gr.HTML(ui.rubric_lint_html(REPLAY["rubric"]))
             b1 = gr.Button("✅ HR accepts the rewrite → build the rubric", variant="primary")
             r1 = gr.HTML(visible=False)
             b1.click(show_rubric, None, r1, **P)
 
         with gr.Tab("② Blind & Score"):
-            gr.Markdown("### Same batch, two screeners: the naive AI vs FairTrace")
+            gr.Markdown("### Same applicants, two screeners")
             gr.HTML(ui.screen_table_html(REPLAY["screen"]))
-            c2 = gr.Dropdown(CHOICES, value=CHOICES[1], label="Open one applicant: see what was removed and the evidence for every point")
+            c2 = gr.Dropdown(CHOICES, value=CHOICES[1], label="Open an applicant")
             h2 = gr.HTML(show_candidate(CHOICES[1]))
             c2.change(show_candidate, c2, h2, **P)
             with gr.Accordion("🧪 Try your own CV (live, needs owner password)", open=False):
@@ -181,8 +199,7 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
                 l2.click(live_cv, [t2, pw], o2, **P)
 
         with gr.Tab("③ FairTrace Auditor"):
-            gr.Markdown("### An AI agent audits the screener: test → find the cause → try a fix → a human decides\n"
-                        "The audited system is the naive AI screener. Verdicts come from statistics, not from the AI.")
+            gr.Markdown("### An AI agent audits the naive screener: test → find the cause → try a fix → a human decides")
             with gr.Row():
                 b3 = gr.Button("▶ Replay saved audit", variant="primary")
                 b3l = gr.Button("🔄 Run live audit (about 3 minutes, owner only)", size="sm")
@@ -192,28 +209,30 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
             with gr.Row():
                 ok3 = gr.Button("✅ Approve recommended fix")
                 no3 = gr.Button("❌ Reject")
-            f3 = gr.File(label="Audit report (Markdown)")
+            f3 = gr.File(label="Audit report (Markdown)", visible=False)
             b3.click(replay_audit, st3, [tl3, res3, st3], **P)
             b3l.click(live_audit, pw, [tl3, res3, st3], **P)
             ok3.click(lambda a: decide(a, "Approved"), st3, [res3, f3], **P)
             no3.click(lambda a: decide(a, "Rejected"), st3, [res3, f3], **P)
 
         with gr.Tab("④ Decision Trace"):
-            gr.Markdown("### Every AI decision can be traced: which model, which prompt, what it said, what it cost")
+            gr.Markdown("### Every AI decision can be traced")
             c4 = gr.Dropdown(CHOICES, value=CHOICES[1], label="Applicant")
             h4 = gr.HTML(show_trace(CHOICES[1]))
             c4.change(show_trace, c4, h4, **P)
             d4 = gr.Button("⬇ Download the full Decision Trace (JSONL)")
-            f4 = gr.File(label="Decision Trace")
+            f4 = gr.File(label="Decision Trace", visible=False)
             d4.click(download_trace, None, f4, **P)
 
         if BENCH:
             with gr.Tab("📊 Model choice"):
-                gr.Markdown("### Why these models? We tested them on our own data")
+                gr.Markdown("### Why these models? Tested on our own data")
                 gr.HTML(ui.benchmark_html(BENCH))
 
         with gr.Tab("ℹ️ About & Ethics"):
             gr.Markdown(ABOUT)
 
 if __name__ == "__main__":
-    demo.launch(theme=gr.themes.Soft(), js=FORCE_LIGHT, footer_links=["gradio", "settings"])
+    theme = gr.themes.Base(primary_hue="indigo", neutral_hue="slate",
+                           font=[gr.themes.GoogleFont("Inter"), "ui-sans-serif", "system-ui", "sans-serif"])
+    demo.launch(theme=theme, css=SHELL_CSS, js=FORCE_LIGHT, footer_links=["gradio", "settings"])
