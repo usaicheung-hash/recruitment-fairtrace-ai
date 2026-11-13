@@ -23,10 +23,13 @@ _bench = Path(__file__).parent / "cache" / "benchmark.json"
 BENCH = json.loads(_bench.read_text(encoding="utf-8")) if _bench.exists() else []
 for part in ("rubric", "screen", "audit"):
     trace.load(REPLAY[part]["trace"])
-for _key in ("naive", "fair"):  # shortlist = top 3, ties share a rank (equal scores, equal treatment)
-    for _r in REPLAY["screen"]["rows"]:
-        _r[_key]["rank"] = 1 + sum(o[_key]["score"] > _r[_key]["score"] for o in REPLAY["screen"]["rows"])
-        _r[_key]["shortlist"] = _r[_key]["rank"] <= 3
+TIE_BAND = 3  # points: smaller differences are within the screeners' own run-to-run noise
+for _key in ("naive", "fair"):  # same rule for both: top 3, plus anyone within TIE_BAND of the 3rd score
+    _rows = REPLAY["screen"]["rows"]
+    _third = sorted((o[_key]["score"] for o in _rows), reverse=True)[2]
+    for _r in _rows:
+        _r[_key]["rank"] = 1 + sum(o[_key]["score"] > _r[_key]["score"] for o in _rows)
+        _r[_key]["shortlist"] = _r[_key]["score"] >= _third - TIE_BAND
 ROWS = {r["id"]: r for r in REPLAY["screen"]["rows"]}
 CHOICES = [f"{r['id']} · {r['name']} ({r['difference']})" for r in REPLAY["screen"]["rows"]]
 

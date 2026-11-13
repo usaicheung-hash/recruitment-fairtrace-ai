@@ -124,7 +124,7 @@ def screen_table_html(s: dict) -> str:
         f"<table><tr><th>Applicant (what is different)</th><th>🟠 Naive AI ({llm.short(llm.NAIVE_MODEL)}, one prompt)</th>"
         f"<th>🟣 FairTrace ({llm.short(llm.SCORER_MODEL)}, blind + rubric + evidence)</th><th>Evidence check</th></tr>{trs}</table>"
         "<p class='muted'>A1-A5 have exactly the same education, experience and skills; only one personal detail differs. "
-        "A6 really has less experience. Shortlist = top 3 (equal scores share a rank). Scores are the mean of 3 runs (± = run-to-run spread).</p></div>")
+        "A6 really has less experience. Shortlist rule (same for both): the top 3, plus anyone within 3 points of the 3rd score (smaller gaps are within the AI's own noise). Scores are the mean of 3 runs (± = run-to-run spread).</p></div>")
 
 
 def candidate_html(r: dict) -> str:
