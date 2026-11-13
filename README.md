@@ -12,7 +12,9 @@ license: mit
 short_description: Screen CVs fast, fairly and with proof (GenAI prototype)
 ---
 
-# 🛩️ Recruitment FairTrace AI
+<img src="assets/logo.svg" width="72" align="left" alt="logo">
+
+# Recruitment FairTrace AI
 
 **An auditable GenAI CV screening assistant: screen CVs fast, fairly and with proof.**
 
@@ -36,6 +38,7 @@ CV Screening Bias Lab, a naive AI recruiter gave an identical CV fewer points wh
 | **① Fair Rubric** | Reviews the job ad for risky wording ("young", "no career gaps", "native English speaker"), suggests a fairer ad and builds a job-related scoring rubric for HR to approve | LLM review + fixed word list; structured JSON output |
 | **② Blind & Score** | A small LLM finds sensitive details, Python removes them; a larger LLM scores each rubric criterion and must quote the CV; Python checks every quote. Compared side by side with the naive AI | Information extraction, rubric prompting, evidence verification |
 | **③ FairTrace Auditor** | A bounded AI agent tests the screener with counterfactual CVs, checks the reasons, tries fixes and waits for a human to approve | Agentic AI (plan → act → observe), tool use |
+| **🏁 Summary** | One page with the whole test: key numbers, charts, naive AI vs FairTrace scorecard, business impact | - |
 | **④ Decision Trace** | Every model call is recorded (model, temperature, prompt version, input hash, raw output, tokens, cost); an LLM drafts an explanation for the applicant | Logging + LLM explanation |
 
 Verdicts ("bias / no bias") are computed by statistics, not by the LLM. The AI never decides alone.
@@ -73,7 +76,7 @@ so visitors cannot spend the owner's credits).
 | `fairtrace/auditor.py` | FairTrace Auditor agent and audit report |
 | `fairtrace/candidates.py` | The risky job ad and the batch of six synthetic applicants |
 | `fairtrace/cv_data.py`, `variants.py` | Synthetic Hong Kong jobs and CV templates (from the earlier Bias Lab) |
-| `fairtrace/ui.py` | HTML rendering |
+| `fairtrace/ui.py`, `ui_extra.py` | HTML rendering: charts, header with logo, Summary page |
 
 ## Limitations and ethics
 

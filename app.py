@@ -15,7 +15,7 @@ from pathlib import Path
 
 import gradio as gr
 
-from fairtrace import auditor, llm, screening, trace, ui
+from fairtrace import auditor, llm, screening, trace, ui, ui_extra
 from fairtrace import candidates as C
 
 REPLAY = json.loads((Path(__file__).parent / "cache" / "replay.json").read_text(encoding="utf-8"))
@@ -157,16 +157,7 @@ FORCE_LIGHT = """() => { const light = () => { document.body.classList.remove('d
 STEPS = [("① Rubric", "fair job ad", "#0284c7"), ("② Blind", "hide personal data", "#db2777"),
          ("③ Score", "quote every point", "#4f46e5"), ("④ Audit", "agent tests bias", "#d97706"),
          ("⑤ Trace", "log every call", "#16a34a")]
-HERO = ui.wrap(
-    "<div style='display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin:4px 0 6px'>"
-    "<div><div style='font-size:1.9rem;font-weight:800;letter-spacing:-.02em'>Recruitment FairTrace AI</div>"
-    "<div class='sub' style='font-size:1rem'>Screen CVs fast, fairly and <b>with proof</b>.</div></div>"
-    "<div class='tiny'>All data synthetic · IS5542 GenAI in Business, CityU</div></div>"
-    "<div style='display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 2px'>"
-    + "<span style='color:#94a3b8;font-weight:800'>→</span>".join(
-        f"<div class='kpi' style='flex:0 1 auto;min-width:0;padding:7px 12px;animation-delay:{i * .12:.2f}s'>"
-        f"<b style='color:{c}'>{n}</b> <span class='tiny'>{t}</span></div>" for i, (n, t, c) in enumerate(STEPS))
-    + "</div>")
+HERO = ui_extra.hero_html(STEPS)
 
 SHELL_CSS = """
 .gradio-container{max-width:1180px !important}
@@ -228,6 +219,10 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
             with gr.Tab("📊 Model choice"):
                 gr.Markdown("### Why these models? Tested on our own data")
                 gr.HTML(ui.benchmark_html(BENCH))
+
+        with gr.Tab("🏁 Summary"):
+            gr.Markdown("### The whole test in one page")
+            gr.HTML(ui_extra.summary_html(REPLAY, BENCH))
 
         with gr.Tab("ℹ️ About & Ethics"):
             gr.Markdown(ABOUT)
