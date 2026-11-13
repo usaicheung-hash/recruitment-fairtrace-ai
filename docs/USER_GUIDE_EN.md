@@ -32,8 +32,10 @@ testing the screener for bias. A human approves every important step.
 1. Press **▶ Replay saved audit**. The agent works step by step: it tests name, age, career break and disability with
    counterfactual CVs, inspects the reasons when it finds a gap, tries a fix and re-tests.
 2. Each step shows the tool, the reason and whether the step was chosen by the AI planner or by the rule fallback.
-3. The result table shows each gap, the noise, the verdict (computed by statistics: gap ≥ 3 points and more than twice
-   the noise) and the gap after the fix.
+3. The result table shows each gap, the noise, the verdict and the gap after the fix. Verdicts are computed by statistics:
+   **BIAS** = gap ≥ 3 points and more than twice the screener's own run-to-run noise; **POSSIBLE BIAS** = gap ≥ 3
+   points but within twice the noise (the agent still inspects and re-tests it; more runs are needed to be sure);
+   **no bias** = gap under 3 points.
 4. Press **✅ Approve** or **❌ Reject**. The decision is recorded and a Markdown audit report is ready to download.
 5. **Run live audit** (owner only) runs the agent again with real model calls (about 3 minutes).
 

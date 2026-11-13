@@ -25,7 +25,7 @@ Rubric → Blind → Trace → Audit：AI 幫 HR 快速篩 CV，但係每一分�
 
 1. 撳 **▶ Replay saved audit**。Agent 逐步做嘢：用對照 CV 測試名、年齡、career break、殘疾；搵到差距就翻查 AI 嘅理由；試修正再重測。
 2. 每一步顯示用咗咩工具、點解、係 AI planner 揀定係規則後備揀。
-3. 結果表：差距、雜訊、判斷（由統計計：差距 ≥ 3 分而且大過雜訊兩倍）、修正後差距。
+3. 結果表：差距、雜訊、判斷（由統計計：**BIAS** = 差距 ≥ 3 分而且大過雜訊兩倍；**POSSIBLE BIAS** = 差距 ≥ 3 分但未夠雜訊兩倍，agent 照樣翻查同重測，要多跑幾次先確定；**no bias** = 差距少過 3 分）、修正後差距。
 4. 撳 **✅ Approve** 或 **❌ Reject**：決定會被記錄，可以下載 Markdown audit report。
 5. **Run live audit**（要 owner 密碼）：用真 model 再跑一次（大約 3 分鐘）。
 

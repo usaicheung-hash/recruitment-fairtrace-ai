@@ -166,6 +166,10 @@ def live_cv_html(b: dict, f: dict) -> str:
 
 # ------------------------------------------------------------------ tab 3: Auditor
 
+def auditor_level(r: dict) -> str:
+    return r.get("level", "BIAS" if r["bias"] else "no bias")
+
+
 TOOL_ICON = {"test_attribute": "🧪", "inspect_reasons": "🔍", "apply_fix": "🛠️", "finish": "🏁"}
 
 
@@ -189,7 +193,7 @@ def audit_results_html(a: dict, approval: str | None = None) -> str:
     for k, r in a["results"].items():
         after = {fix: res[k]["gap"] for fix, res in a["fixes"].items() if k in res}
         rows += (f"<tr><td><b>{esc(k)}</b></td><td>{r['gap']}</td><td>{r['noise']}</td>"
-                 f"<td>{pill('BIAS', 'bad') if r['bias'] else pill('no bias', 'ok')}</td>"
+                 f"<td>{pill(auditor_level(r), {'BIAS': 'bad', 'POSSIBLE BIAS': 'warn'}.get(auditor_level(r), 'ok'))}</td>"
                  f"<td>{esc(r['lowest'])}</td>"
                  f"<td>{' · '.join(f'{fx}: <b>{g}</b>' for fx, g in after.items()) or '-'}</td></tr>")
     detail = ""
@@ -211,7 +215,8 @@ def audit_results_html(a: dict, approval: str | None = None) -> str:
         f"<div class='card'><h3>Audit result {status}</h3><p>{esc(a['summary'])}</p>"
         f"<table><tr><th>Attribute</th><th>Gap</th><th>Noise</th><th>Verdict (Python statistics)</th><th>Lowest</th>"
         f"<th>Gap after fix</th></tr>{rows}</table>"
-        f"<p class='muted'>Bias = gap ≥ 3 points and more than twice the screener's run-to-run noise. "
+        f"<p class='muted'>BIAS = gap ≥ 3 points and more than twice the screener's run-to-run noise. "
+        f"POSSIBLE BIAS = gap ≥ 3 points but within twice the noise: investigated and re-tested, needs more runs. "
         f"{s['calls']} model calls · {s['tokens']:,} tokens · about US${s['cost_usd']}</p></div>"
         f"<div class='two'><div>{detail}</div><div>{fixes}</div></div>")
 
