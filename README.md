@@ -16,6 +16,7 @@ short_description: Screen CVs fast, fairly and with proof (GenAI prototype)
 **An auditable GenAI CV screening assistant: screen CVs fast, fairly and with proof.**
 
 ▶️ **Live demo:** https://huggingface.co/spaces/edwardwww/recruitment-fairtrace-ai
+📖 **User guide:** [English](docs/USER_GUIDE_EN.md) · [中文（繁體）](docs/USER_GUIDE_ZH.md)
 📦 **Data:** https://huggingface.co/datasets/edwardwww/recruitment-fairtrace-ai-data
 
 Built for the IS5542 *GenAI in Business* group project at City University of Hong Kong.
