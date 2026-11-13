@@ -54,7 +54,7 @@ def hero_html(steps) -> str:
                    for x in range(10, 1200, 28) for y in range(10, 200, 28))
     bg = ("<svg class='bg' viewBox='0 0 1200 200' preserveAspectRatio='none'>" + dots +
           "<path class='wave' d='M0,150 L180,150 L220,110 L260,175 L300,95 L340,150 L620,150 L650,128 L690,168 "
-          "L720,140 L1200,140' fill='none' stroke='#5eead4' stroke-width='2.5' opacity='.8'/></svg>")
+          "L720,140 L1200,140' fill='none' stroke='#5eead4' stroke-width='2' opacity='.35'/></svg>")
     pills = "<span class='arr'>→</span>".join(
         f"<span class='stp' style='animation-delay:{.15 + i * .12:.2f}s'><i>{i + 1}</i><b>{esc(n.split(' ', 1)[-1])}</b> {esc(t)}</span>"
         for i, (n, t, _c) in enumerate(steps))
