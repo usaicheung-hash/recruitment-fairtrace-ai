@@ -216,6 +216,28 @@ def audit_results_html(a: dict, approval: str | None = None) -> str:
         f"<div class='two'><div>{detail}</div><div>{fixes}</div></div>")
 
 
+# ------------------------------------------------------------------ model choice
+
+def benchmark_html(results: list[dict]) -> str:
+    def row(m):
+        chosen = m["model"] == llm.SCORER_MODEL and m["method"] == "fair"
+        return (f"<tr style='{'background:#eef2ff' if chosen else ''}'><td><b>{esc(llm.short(m['model']))}</b>"
+                f"{' ' + pill('chosen', 'ok') if chosen else ''}</td>"
+                f"<td>{'🟣 FairTrace' if m['method'] == 'fair' else '🟠 Naive prompt'}</td>"
+                f"<td><b>{m['spread']}</b></td><td>{m['sd']}</td><td>{m['separation']}</td>"
+                f"<td>{str(m['evidence']) + '%' if 'evidence' in m else '-'}</td>"
+                f"<td>${m['cost_per_cv']:.4f}</td><td>{m['sec_per_cv']}s</td></tr>")
+    trs = "".join(row(m) for m in sorted(results, key=lambda m: (m["method"] != "fair", m["spread"])))
+    return wrap(
+        "<div class='card'><h3>📊 Model selection: same 6 applicants, 3 models, 2 methods (3 runs per CV)</h3>"
+        "<table><tr><th>Model</th><th>Method</th><th>Unfair spread ↓<br><span class='muted'>gap among 5 equal CVs</span></th>"
+        "<th>Run-to-run SD ↓</th><th>Separation ↑<br><span class='muted'>qualified minus weak CV</span></th>"
+        "<th>Evidence verified ↑</th><th>Cost / CV</th><th>Model time / CV</th></tr>"
+        f"{trs}</table><p class='muted'>Cost is estimated from token counts and the provider prices listed on the Hugging Face "
+        "router (Nov 2026). Model time is the sum of calls; calls run in parallel. A fair screener needs a small spread "
+        "AND a large separation: it must still tell a strong CV from a weak one.</p></div>")
+
+
 # ------------------------------------------------------------------ tab 4: Decision Trace
 
 def trace_html(recs: list[dict], letter: str = "") -> str:

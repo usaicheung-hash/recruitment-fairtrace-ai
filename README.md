@@ -62,6 +62,7 @@ so visitors cannot spend the owner's credits).
 | File | Purpose |
 |---|---|
 | `app.py` | Gradio interface (4 steps + About) |
+| `benchmark.py` | Model selection test: 3 models x 2 methods on the same applicants (`cache/benchmark.json`) |
 | `build_cache.py` | Runs the whole pipeline with real model calls and saves `cache/replay.json` |
 | `fairtrace/llm.py` | Model calls, cost estimate, JSON parsing |
 | `fairtrace/trace.py` | Decision Trace recorder (JSONL) |

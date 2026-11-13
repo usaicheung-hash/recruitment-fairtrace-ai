@@ -19,6 +19,8 @@ from fairtrace import auditor, llm, screening, trace, ui
 from fairtrace import candidates as C
 
 REPLAY = json.loads((Path(__file__).parent / "cache" / "replay.json").read_text(encoding="utf-8"))
+_bench = Path(__file__).parent / "cache" / "benchmark.json"
+BENCH = json.loads(_bench.read_text(encoding="utf-8")) if _bench.exists() else []
 for part in ("rubric", "screen", "audit"):
     trace.load(REPLAY[part]["trace"])
 for _key in ("naive", "fair"):  # shortlist = top 3, ties share a rank (equal scores, equal treatment)
@@ -201,6 +203,11 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
             d4 = gr.Button("⬇ Download the full Decision Trace (JSONL)")
             f4 = gr.File(label="Decision Trace")
             d4.click(download_trace, None, f4, **P)
+
+        if BENCH:
+            with gr.Tab("📊 Model choice"):
+                gr.Markdown("### Why these models? We tested them on our own data")
+                gr.HTML(ui.benchmark_html(BENCH))
 
         with gr.Tab("ℹ️ About & Ethics"):
             gr.Markdown(ABOUT)
