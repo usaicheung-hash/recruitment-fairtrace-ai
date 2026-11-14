@@ -37,6 +37,7 @@ CV Screening Bias Lab, a naive AI recruiter gave an identical CV fewer points wh
 
 | Page | What it does | GenAI technique |
 |---|---|---|
+| **🚀 Introduction** | Intro video, the problem, who it is for, and the match: naive AI vs FairTrace (with confetti) | - |
 | **① Fair Rubric** | Reviews the job ad for risky wording, suggests fairer wording and builds a job-related scoring rubric for HR to approve | LLM review + fixed word list; structured JSON output |
 | **② Blind & Score** | An LLM finds personal details and Python removes them; a second LLM scores each rubric criterion and must quote the CV; Python checks every quote. Compared side by side with a naive AI | Information extraction, rubric prompting, evidence verification |
 | **③ FairTrace Auditor** | A bounded AI agent tests the screener with counterfactual CVs, checks its reasons, tries fixes and waits for a human to approve | Agentic AI (plan → act → observe), tool use |
@@ -131,7 +132,7 @@ so visitors cannot spend the owner's credits).
 | `fairtrace/auditor.py` | FairTrace Auditor agent and audit report |
 | `fairtrace/candidates.py` | The risky job ad and the six synthetic applicants |
 | `fairtrace/cv_data.py`, `variants.py` | Synthetic Hong Kong jobs and CV templates (from the earlier Bias Lab) |
-| `fairtrace/ui.py`, `ui_extra.py` | HTML rendering: charts, header with logo, Summary page |
+| `fairtrace/ui.py`, `ui_extra.py`, `ui_intro.py` | HTML rendering: charts, header with logo, Summary and Introduction pages |
 | `docs/` | User guides (English, Chinese), screenshots and the screenshot script |
 
 ## Limitations and ethics

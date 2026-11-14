@@ -15,9 +15,10 @@ from pathlib import Path
 
 import gradio as gr
 
-from fairtrace import auditor, llm, screening, trace, ui, ui_extra
+from fairtrace import auditor, llm, screening, trace, ui, ui_extra, ui_intro
 from fairtrace import candidates as C
 
+INTRO_VIDEO = Path(__file__).parent / "assets" / "intro.mp4"
 REPLAY = json.loads((Path(__file__).parent / "cache" / "replay.json").read_text(encoding="utf-8"))
 _bench = Path(__file__).parent / "cache" / "benchmark.json"
 BENCH = json.loads(_bench.read_text(encoding="utf-8")) if _bench.exists() else []
@@ -170,6 +171,15 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
         pw = gr.Textbox(label="Owner password", type="password", max_lines=1)
     P = dict(api_visibility="private")
     with gr.Tabs():
+        with gr.Tab("🚀 Introduction"):
+            gr.Markdown("### Fair, explainable CV screening for HR, in four minutes")
+            if INTRO_VIDEO.exists():
+                gr.Video(value=str(INTRO_VIDEO), label="Introduction video (3:55)", autoplay=False, height=520)
+            n0 = gr.State(0)
+            h0 = gr.HTML(ui_intro.intro_html(REPLAY))
+            b0 = gr.Button("🎉 Celebrate again", size="sm")
+            b0.click(lambda n: (ui_intro.intro_html(REPLAY, n + 1), n + 1), n0, [h0, n0], **P)
+
         with gr.Tab("① Fair Rubric"):
             gr.Markdown("### Bias often starts in the job ad")
             gr.HTML(ui.rubric_lint_html(REPLAY["rubric"]))
