@@ -16,20 +16,23 @@ INTRO_CSS = """
 .ft .vs-badge{width:62px;height:62px;margin:auto;border-radius:50%;background:#0f172a;color:#fff;display:flex;
   align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;animation:pop .6s cubic-bezier(.2,.9,.3,1.4) both}
 .ft .round{display:grid;grid-template-columns:1fr 1.1fr 1fr;align-items:center;gap:10px;padding:9px 12px;margin:6px 0;
-  background:#fff;border:1px solid #e2e8f0;border-radius:12px;animation:rise .5s ease-out both}
+  background:#fff;border:1px solid #e2e8f0;border-radius:12px}
+.ft .vs.go .round{animation:rise .5s ease-out both}
 .ft .round .mid{text-align:center;font-weight:700;color:#334155;font-size:.9rem}
 .ft .round .l{text-align:right}.ft .round .r{text-align:left}
 .ft .round .val{font-size:1.15rem;font-weight:800}
 .ft .round.win-r .r .val{color:#4f46e5}.ft .round.win-r .l .val{color:#94a3b8}
 .ft .round .tick{display:inline-block;margin-left:6px;animation:pop .5s ease-out both}
 .ft .final{margin-top:12px;text-align:center;padding:16px;border-radius:16px;color:#fff;
-  background:linear-gradient(120deg,#3730a3,#4f46e5 50%,#0f766e);animation:rise .6s ease-out both}
+  background:linear-gradient(120deg,#3730a3,#4f46e5 50%,#0f766e)}
+body.js-ft .ft .vs .round, body.js-ft .ft .vs .final{opacity:0}
+.ft .vs.go .final{animation:rise .6s ease-out both}
 .ft .final, .ft .final *{color:#fff !important}
 .ft .final .big{font-size:2.1rem;font-weight:900;letter-spacing:-.02em}
 .ft .trophy{display:inline-block;font-size:2.6rem;animation:bounce 1.2s ease-in-out infinite}
 .ft .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
-.ft .confetti i{position:absolute;left:50%;top:86%;width:9px;height:14px;border-radius:2px;opacity:0;
-  animation:burst var(--t) cubic-bezier(.15,.7,.3,1) var(--d) forwards}
+.ft .confetti i{position:absolute;left:50%;top:86%;width:9px;height:14px;border-radius:2px;opacity:0}
+.ft .vs.go .confetti i{animation:burst var(--t) cubic-bezier(.15,.7,.3,1) var(--d) forwards}
 @keyframes burst{0%{opacity:1;transform:translate(0,0) rotate(0)}
   70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
 @keyframes bounce{50%{transform:translateY(-6px) rotate(-6deg)}}
@@ -49,7 +52,7 @@ def confetti(n: int = 90, seed: int = 7) -> str:
         dy = rnd.randint(-760, 40)
         pieces.append(
             f"<i style='--dx:{dx}px;--dy:{dy}px;--r:{rnd.randint(-720, 720)}deg;--t:{rnd.uniform(1.6, 2.8):.2f}s;"
-            f"--d:{rnd.uniform(.9, 1.6):.2f}s;background:{rnd.choice(COLORS)};"
+            f"--d:{rnd.uniform(1.1, 1.7):.2f}s;background:{rnd.choice(COLORS)};"
             f"width:{rnd.randint(6, 11)}px;height:{rnd.randint(8, 16)}px;"
             f"border-radius:{rnd.choice(['2px', '50%'])}'></i>")
     return "<div class='confetti'>" + "".join(pieces) + "</div>"

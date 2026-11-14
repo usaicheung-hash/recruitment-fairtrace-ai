@@ -5,6 +5,7 @@ The presentation uses a saved real run (cache/replay.json). Running the models a
 password (Space secret APP_PASSWORD) and HF_TOKEN. All CVs and data are synthetic.
 """
 
+import base64
 import copy
 import hmac
 import json
@@ -151,9 +152,30 @@ Data: [edwardwww/recruitment-fairtrace-ai-data](https://huggingface.co/datasets/
 Code: [GitHub](https://github.com/usaicheung-hash/recruitment-fairtrace-ai)
 """
 
-FORCE_LIGHT = """() => { const light = () => { document.body.classList.remove('dark');
-  document.querySelectorAll('.dark').forEach(e => e.classList.remove('dark')); };
-  light(); new MutationObserver(light).observe(document.body, {attributes: true}); }"""
+POSTER = Path(__file__).parent / "assets" / "intro_poster.jpg"
+POSTER_URI = ("data:image/jpeg;base64," + base64.b64encode(POSTER.read_bytes()).decode()) if POSTER.exists() else ""
+
+# Runs once in the browser: light mode, the video poster (00:02 frame) and the confetti trigger.
+# The confetti only plays while the match card is on screen, so it fires when the visitor scrolls to it
+# (and again after "Celebrate again"), instead of finishing unseen while the video is on screen.
+FORCE_LIGHT = """() => {
+  // only touch the class when it is there: removing an absent class still fires the observer (endless loop)
+  const light = () => { if (document.body.classList.contains('dark')) document.body.classList.remove('dark');
+    document.querySelectorAll('.dark').forEach(e => e.classList.remove('dark')); };
+  light(); new MutationObserver(light).observe(document.body, {attributes: true});
+  document.body.classList.add('js-ft');
+  const poster = "%s";
+  setInterval(() => {
+    if (poster) document.querySelectorAll('#intro-video video').forEach(v => {
+      if (v.getAttribute('poster') !== poster) v.setAttribute('poster', poster); });
+    document.querySelectorAll('.ft .vs').forEach(el => {
+      const r = el.getBoundingClientRect();
+      const seen = r.width > 0 && r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25;
+      if (seen && !el.classList.contains('go')) el.classList.add('go');
+      if (!seen && r.width > 0 && el.classList.contains('go')) el.classList.remove('go');
+    });
+  }, 300);
+}""" % POSTER_URI
 
 STEPS = [("① Rubric", "fair job ad", "#0284c7"), ("② Blind", "hide personal data", "#db2777"),
          ("③ Score", "quote every point", "#4f46e5"), ("④ Audit", "agent tests bias", "#d97706"),
@@ -174,7 +196,8 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
         with gr.Tab("🚀 Introduction"):
             gr.Markdown("### Fair, explainable CV screening for HR, in four minutes")
             if INTRO_VIDEO.exists():
-                gr.Video(value=str(INTRO_VIDEO), label="Introduction video (3:55)", autoplay=False, height=520)
+                gr.Video(value=str(INTRO_VIDEO), label="Introduction video (3:55)", autoplay=False, height=520,
+                         elem_id="intro-video")
             n0 = gr.State(0)
             h0 = gr.HTML(ui_intro.intro_html(REPLAY))
             b0 = gr.Button("🎉 Celebrate again", size="sm")
