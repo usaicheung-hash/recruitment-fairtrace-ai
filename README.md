@@ -10,9 +10,15 @@ app_file: app.py
 pinned: false
 license: mit
 short_description: Screen CVs fast, fairly and with proof (GenAI prototype)
+thumbnail: https://huggingface.co/spaces/edwardwww/recruitment-fairtrace-ai/resolve/main/assets/social_preview.png
 ---
 
-<img src="assets/logo.svg" width="72" align="left" alt="logo">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo_dark_960.png">
+    <img src="assets/logo_light.png" width="420" alt="FairTrace AI logo">
+  </picture>
+</p>
 
 # Recruitment FairTrace AI
 

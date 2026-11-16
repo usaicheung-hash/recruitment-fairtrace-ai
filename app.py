@@ -263,4 +263,5 @@ with gr.Blocks(title="Recruitment FairTrace AI") as demo:
 if __name__ == "__main__":
     theme = gr.themes.Base(primary_hue="indigo", neutral_hue="slate",
                            font=[gr.themes.GoogleFont("Inter"), "ui-sans-serif", "system-ui", "sans-serif"])
-    demo.launch(theme=theme, css=SHELL_CSS, js=FORCE_LIGHT, footer_links=["gradio", "settings"])
+    demo.launch(theme=theme, css=SHELL_CSS, js=FORCE_LIGHT, favicon_path=str(Path(__file__).parent / "assets" / "favicon.png"),
+                footer_links=["gradio", "settings"])

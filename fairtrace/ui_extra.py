@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import base64
+from pathlib import Path
+
 from . import llm, trace
 from .rubric import lexicon_flags
 from .ui import (BAD, CSS, FAIR, FIX_NAME, GOOD, NAIVE, NEUTRAL, WARN, audit_level, esc, level_chip, spread,
@@ -32,6 +35,8 @@ HERO_CSS = """
 .ft .hero .top{position:relative;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .ft .hero h1{margin:0;font-size:2rem;font-weight:800;letter-spacing:-.02em;color:#fff}
 .ft .hero .tag{color:#c7d2fe;font-size:1.02rem;margin-top:2px}
+.ft .hero .sub{border-left:1px solid rgba(255,255,255,.25);padding-left:16px}
+.ft .hero .kick{color:#5eead4;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .ft .hero .tag b{color:#fff}
 .ft .hero .meta{margin-left:auto;font-size:.8rem;color:#c7d2fe;text-align:right}
 .ft .hero .steps{position:relative;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:16px}
@@ -49,6 +54,18 @@ def logo(size: int = 58) -> str:
     return LOGO_SVG.format(size=size)
 
 
+# The master wordmark has dark navy text, which disappears on the dark hero banner,
+# so the banner uses the light-on-dark variant (white text, brighter teal).
+_WORDMARK = Path(__file__).resolve().parent.parent / "assets" / "logo_dark.png"
+
+
+def wordmark(height: int = 56) -> str:
+    if not _WORDMARK.exists():
+        return logo(height)
+    uri = "data:image/png;base64," + base64.b64encode(_WORDMARK.read_bytes()).decode()
+    return f"<img class='wm' src='{uri}' alt='FairTrace AI logo' style='height:{height}px;width:auto;display:block'>"
+
+
 def hero_html(steps) -> str:
     dots = "".join(f"<circle cx='{x}' cy='{y}' r='1.3' fill='#c7d2fe' opacity='.35'/>"
                    for x in range(10, 1200, 28) for y in range(10, 200, 28))
@@ -60,8 +77,9 @@ def hero_html(steps) -> str:
         for i, (n, t, _c) in enumerate(steps))
     return CSS + HERO_CSS + (
         "<div class='ft'><div class='hero'>" + bg +
-        "<div class='top'>" + logo(58) +
-        "<div><h1>Recruitment FairTrace AI</h1><div class='tag'>Screen CVs fast, fairly and <b>with proof</b>.</div></div>"
+        "<div class='top'><h1 aria-label='Recruitment FairTrace AI'>" + wordmark(56) + "</h1>"
+        "<div class='sub'><div class='kick'>Recruitment</div>"
+        "<div class='tag'>Screen CVs fast, fairly and <b>with proof</b>.</div></div>"
         "<div class='meta'>GenAI prototype · all data synthetic<br>IS5542 GenAI in Business · CityU</div></div>"
         f"<div class='steps'>{pills}</div></div></div>")
 
